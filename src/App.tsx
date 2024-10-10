@@ -5,7 +5,7 @@ import { useEarthquakeData } from './components/useEarthquakeData.ts';
 import { Card, Button } from 'react-bootstrap';
 import Logo from './assets/logo.png';
 
-const defaultCenter = { lat: 37.7749, lng: -122.4194 }; // San Francisco como centro predeterminado
+const defaultCenter = { lat: 37.7749, lng: -122.4194 };
 const defaultZoom = 2;
 
 const App: React.FC = () => {
