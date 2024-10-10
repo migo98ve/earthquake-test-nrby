@@ -6,12 +6,6 @@ const containerStyle = {
   height: '80vh',
   borderRadius: '10px',
   boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-  
-};
-
-const center = {
-  lat: 37.7749,
-  lng: -122.4194,
 };
 
 interface MarkerData {
@@ -25,9 +19,11 @@ interface MarkerData {
 interface Props {
   markers: MarkerData[];
   highlightId: string | null;
+  center: google.maps.LatLngLiteral;
+  zoom: number;
 }
 
-const GoogleMapComponent: React.FC<Props> = ({ markers, highlightId }) => {
+const GoogleMapComponent: React.FC<Props> = ({ markers, highlightId, center, zoom }) => {
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRefs = useRef<google.maps.Marker[]>([]);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
@@ -36,6 +32,7 @@ const GoogleMapComponent: React.FC<Props> = ({ markers, highlightId }) => {
     if (!isMapLoaded || !mapRef.current || markers.length === 0) return;
     markerRefs.current.forEach((marker) => marker.setMap(null));
     markerRefs.current = [];
+
     setTimeout(() => {
       markers.forEach((markerData) => {
         const marker = new google.maps.Marker({
@@ -58,7 +55,7 @@ const GoogleMapComponent: React.FC<Props> = ({ markers, highlightId }) => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={2}
+        zoom={zoom}
         onLoad={(map) => {
           mapRef.current = map;
           setIsMapLoaded(true);

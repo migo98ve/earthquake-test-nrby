@@ -5,10 +5,15 @@ import { useEarthquakeData } from './components/useEarthquakeData.ts';
 import { Card, Button } from 'react-bootstrap';
 import Logo from './assets/logo.png';
 
+const defaultCenter = { lat: 37.7749, lng: -122.4194 }; // San Francisco como centro predeterminado
+const defaultZoom = 2;
+
 const App: React.FC = () => {
   const { data: earthquakeData, isLoading, error } = useEarthquakeData();
   const [selectedEarthquakeId, setSelectedEarthquakeId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
+  const [searchTerm, setSearchTerm] = useState('');
+  const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [mapZoom, setMapZoom] = useState(defaultZoom);
 
   if (isLoading) return <div>Loading data...</div>;
   if (error) return <div>Error loading data.</div>;
@@ -17,8 +22,10 @@ const App: React.FC = () => {
     return <div>No earthquake data available.</div>;
   }
 
-  const handleEarthquakeClick = (id: string) => {
+  const handleEarthquakeClick = (id: string, lat: number, lng: number) => {
     setSelectedEarthquakeId(id);
+    setMapCenter({ lat, lng });
+    setMapZoom(8);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,9 +35,10 @@ const App: React.FC = () => {
   const handleReset = () => {
     setSelectedEarthquakeId(null);
     setSearchTerm('');
+    setMapCenter(defaultCenter);
+    setMapZoom(defaultZoom);
   };
 
-  // Filtra la lista de terremotos según el término de búsqueda
   const filteredMarkers = earthquakeData.filter((earthquake: any) =>
     earthquake.place.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -50,14 +58,14 @@ const App: React.FC = () => {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <Button  className="mb-3 nrby" onClick={handleReset}>
+        <Button className="mb-3 nrby" onClick={handleReset}>
           Reset
         </Button>
         {filteredMarkers.map((earthquake: any) => (
           <Card
             key={earthquake.id}
             className={`mb-2 ${selectedEarthquakeId === earthquake.id ? 'border-primarys' : ''}`}
-            onClick={() => handleEarthquakeClick(earthquake.id)}
+            onClick={() => handleEarthquakeClick(earthquake.id, earthquake.lat, earthquake.lng)}
             style={{ cursor: 'pointer' }}
           >
             <Card.Body style={{ padding: '8px' }}>
@@ -73,7 +81,7 @@ const App: React.FC = () => {
       </div>
       <div className="map-container justify-content-center align-items-center">
         <img src={Logo} alt="Earthquake Logo" className="img-fluid" />
-        <GoogleMapComponent markers={displayedMarkers} highlightId={selectedEarthquakeId} />
+        <GoogleMapComponent markers={displayedMarkers} highlightId={selectedEarthquakeId} center={mapCenter} zoom={mapZoom} />
       </div>
     </div>
   );
